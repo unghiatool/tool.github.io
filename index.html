@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tool Novelah V1</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      color: #eee;
+    }
+    .container {
+      padding: 30px 15px;
+    }
+    h1 {
+      color: #7CFC00;
+      font-size: 2.8em;
+      margin-bottom: 20px;
+      text-shadow: 0 0 8px #7CFC00;
+    }
+    input, button {
+      width: 90%;
+      max-width: 400px;
+      font-size: 1.2em;
+      padding: 15px;
+      margin: 15px auto;
+      border-radius: 12px;
+      display: block;
+    }
+    input {
+      border: 2px solid #7CFC00;
+      background: rgba(0, 0, 0, 0.85);
+      color: #7CFC00;
+      font-weight: bold;
+      text-align: center;
+      text-shadow: 0 0 4px #7CFC00;
+    }
+    input::placeholder {
+      color: #a0dca0;
+      opacity: 1;
+    }
+    button {
+      background: linear-gradient(to right, #7CFC00, #00FF00);
+      color: black;
+      font-weight: bold;
+      border: none;
+      box-shadow: 0 0 12px #7CFC00;
+      transition: background 0.3s ease;
+      cursor: pointer;
+      text-shadow: none;
+    }
+    button:hover {
+      background: linear-gradient(to right, #00FF00, #7CFC00);
+      box-shadow: 0 0 20px #00FF00;
+    }
+    .notice {
+      font-size: 0.95em;
+      color: #ff5555;
+      font-weight: bold;
+      text-shadow: none;
+    }
+    .hidden {
+      display: none;
+    }
+    #countdown {
+      font-size: 1.6em;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #7CFC00;
+      text-shadow: 0 0 8px #7CFC00;
+    }
+    #numbers {
+      margin-top: 20px;
+      font-size: 1.6em;
+      font-weight: bold;
+      color: #00ff00;
+      text-shadow:
+        0 0 8px #00ff00,
+        0 0 15px #00ff00,
+        0 0 20px #00ff00,
+        0 0 30px #7CFC00;
+      animation: flicker 1.5s infinite alternate;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    @keyframes flicker {
+      0% {opacity: 1;}
+      50% {opacity: 0.7;}
+      100% {opacity: 1;}
+    }
+    #exitBtn {
+      margin-top: 30px;
+      background: #222;
+      box-shadow: none;
+      color: #7CFC00;
+      font-weight: bold;
+      border: 2px solid #7CFC00;
+      text-shadow: none;
+    }
+    #exitBtn:hover {
+      background: #004d00;
+      box-shadow: 0 0 15px #7CFC00;
+      color: #bfff00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tool Novelah V1</h1>
+
+    <!-- Step 1 -->
+    <div id="step1">
+      <input type="text" id="inviteCode" placeholder="Hãy nhập mã lời mời của bạn" />
+      <div class="notice">* Lưu ý phải nhập đúng mã, nếu sai điểm sẽ không lên</div>
+      <button onclick="goToStep2()">🎯 Buff điểm</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step2" class="hidden">
+      <input
+        type="number"
+        id="pointInput"
+        placeholder="Nhập số điểm cần buff (tối đa 7,200,000)"
+        max="7200000"
+      />
+      <div class="notice" id="pointWarning" style="display:none;">⚠️ Số điểm không được vượt quá 7,200,000</div>
+      <button onclick="startBuff()">🚀 Bắt đầu buff điểm</button>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="step3" class="hidden">
+      <div style="font-size: 1.1em; font-weight: bold; color: #7CFC00; text-shadow: 0 0 6px #7CFC00;">
+        Đang buff điểm, ko vào Novelah sau khi buff trong 30p-40p
+      </div>
+      <div class="notice" style="color: #ff5555; text-shadow: none;">
+        * Lưu ý điểm sẽ nhảy 1 lần đủ điểm luôn, không lên từ từ
+      </div>
+      <div id="countdown">Thời gian còn lại: ...</div>
+      <div id="numbers">0 điểm đang buff...</div>
+      <button id="exitBtn" onclick="exitToStart()">🚪 Thoát</button>
+    </div>
+  </div>
+
+  <script>
+    function goToStep2() {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+    }
+
+    function startBuff() {
+      const pointInput = document.getElementById('pointInput');
+      const pointWarning = document.getElementById('pointWarning');
+      let point = parseInt(pointInput.value);
+
+      if (isNaN(point) || point <= 0) {
+        alert('Vui lòng nhập số điểm hợp lệ lớn hơn 0.');
+        return;
+      }
+
+      if (point > 7200000) {
+        pointWarning.style.display = 'block';
+        return;
+      } else {
+        pointWarning.style.display = 'none';
+      }
+
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.remove('hidden');
+
+      // Tính thời gian dựa trên điểm
+      const minTime = 20;      // tối thiểu 1 phút (giây)
+      const maxTime = 40 * 60; // tối đa 40 phút (giây)
+      const maxPoint = 7200000;
+
+      let timeSeconds = Math.round((point / maxPoint) * maxTime);
+      if (timeSeconds < minTime) timeSeconds = minTime;
+
+      startCountdown(timeSeconds);
+      startNumberJump(point, timeSeconds);
+    }
+
+    function startCountdown(seconds) {
+      const countdownEl = document.getElementById('countdown');
+      let timeLeft = seconds;
+      const interval = setInterval(() => {
+        if (timeLeft < 0) {
+          clearInterval(interval);
+          countdownEl.innerText = 'Hoàn thành buff điểm!';
+          return;
+        }
+        const min = Math.floor(timeLeft / 60);
+        const sec = timeLeft % 60;
+        countdownEl.innerText = `Thời gian còn lại: ${min}:${sec.toString().padStart(2, '0')}`;
+        timeLeft--;
+      }, 1000);
+    }
+
+    function startNumberJump(maxPoint, totalSeconds) {
+      const numbersEl = document.getElementById('numbers');
+      let current = 0;
+
+      const increments = Math.ceil(maxPoint / totalSeconds);
+
+      const interval = setInterval(() => {
+        current += increments;
+        if (current >= maxPoint) {
+          numbersEl.innerText = `+${maxPoint.toLocaleString()} điểm đã được buff thành công!`;
+          clearInterval(interval);
+        } else {
+          numbersEl.innerText = `Đang buff: ${current.toLocaleString()} điểm...`;
+        }
+      }, 1000);
+    }
+
+    function exitToStart() {
+      document.getElementById('pointInput').value = '';
+      document.getElementById('pointWarning').style.display = 'none';
+      document.getElementById('numbers').innerText = '0 điểm đang buff...';
+      document.getElementById('countdown').innerText = 'Thời gian còn lại: 30:00';
+
+      document.getElementById('step3').classList.add('hidden');
+      document.getElementById('step1').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
